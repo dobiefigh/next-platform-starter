@@ -1,43 +1,62 @@
-# Next.js on Netlify Platform Starter
+# Ikigai
 
-[Live Demo](https://nextjs-platform-starter.netlify.app/)
+A mobile-first PWA to help you **find and follow your ikigai** — the Japanese concept of a "reason for being," found where four parts of your life overlap:
 
-A modern starter based on Next.js 16 (App Router), Tailwind, and [Netlify Core Primitives](https://docs.netlify.com/core/overview/#develop) (Edge Functions, Image CDN, Blob Store).
+- ❤️ **What you love**
+- ⭐ **What you're good at**
+- 🌍 **What the world needs**
+- 💰 **What you can be paid for**
 
-In this site, Netlify Core Primitives are used both implictly for running Next.js features (e.g. Route Handlers, image optimization via `next/image`, and more) and also explicitly by the user code.
+Where all four meet is your _ikigai_.
 
-Implicit usage means you're using any Next.js functionality and everything "just works" when deployed - all the plumbing is done for you. Explicit usage is framework-agnostic and typically provides more features than what Next.js exposes.
+## Features (current)
 
-## Deploying to Netlify
+- **Discover flow** (`/discover`) — brainstorm activities, then rate each one across the four dimensions in a guided, mobile-friendly wizard.
+- **Ikigai map** (`/map`) — a four-circle Venn visualization that sorts your activities into overlaps (Passion, Mission, Profession, Vocation) and surfaces your **ikigai candidates**.
+- **Local-first** — everything is stored in your browser via `localStorage`; no account required.
+- **Installable PWA** — web app manifest, icon, theme color, and an offline-capable service worker.
 
-Click the button below to deploy this template to your Netlify account.
+## Tech stack
 
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/netlify-templates/next-platform-starter)
+- [Next.js 16](https://nextjs.org/) (App Router, React Compiler)
+- [Tailwind CSS v4](https://tailwindcss.com/)
+- Deployed on [Netlify](https://docs.netlify.com/frameworks/next-js/overview/)
 
-## Developing Locally
+## Developing locally
 
-1. Clone this repository, then run `npm install` in its root directory.
-
-2. For the starter to have full functionality locally (e.g. edge functions, blob store), please ensure you have an up-to-date version of Netlify CLI. Run:
-
-```
-npm install netlify-cli@latest -g
-```
-
-3. Link your local repository to the deployed Netlify site. This will ensure you're using the same runtime version for both local development and your deployed site.
-
-```
-netlify link
-```
-
-4. Then, run the Next.js development server via Netlify CLI:
-
-```
-netlify dev
+```bash
+npm install
+npm run dev
 ```
 
-If your browser doesn't navigate to the site automatically, visit [localhost:8888](http://localhost:8888).
+Then open [localhost:3000](http://localhost:3000).
 
-## Resources
+Other scripts:
 
-- Check out the [Next.js on Netlify docs](https://docs.netlify.com/frameworks/next-js/overview/)
+```bash
+npm run build   # production build
+npm run lint    # ESLint (flat config)
+```
+
+## Roadmap
+
+- **Follow your ikigai** — turn your map into goals, habits, and check-ins.
+- AI "ikigai coach" for reflective prompts and theme-spotting.
+- Optional accounts + cloud sync across devices.
+
+## Project structure
+
+```
+app/
+  page.jsx          # landing
+  discover/page.jsx # the discovery wizard
+  map/page.jsx      # the ikigai map
+  manifest.js       # PWA manifest
+components/
+  app-header.jsx
+  sw-register.jsx
+  ikigai/           # mark + venn visualization
+lib/
+  ikigai.js         # model + region logic
+  use-ikigai.js     # local-first store (useSyncExternalStore)
+```
