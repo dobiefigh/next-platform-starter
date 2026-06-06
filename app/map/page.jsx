@@ -1,26 +1,40 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useIkigai } from 'lib/use-ikigai';
 import { IkigaiVenn } from 'components/ikigai/venn';
-import { DIMENSIONS, IKIGAI_HEX, summarize } from 'lib/ikigai';
+import { IkigaiMark } from 'components/ikigai/mark';
+import { IconArrowRight, IconCheck, IconPencil } from 'components/icons';
+import { buildExampleActivities, DIMENSIONS, IKIGAI_HEX, missingDims, summarize } from 'lib/ikigai';
 
 export default function MapPage() {
-    const { activities, ready, reset } = useIkigai();
+    const { activities, ready, renameActivity, replaceAll } = useIkigai();
 
     if (!ready) {
-        return <p className="py-16 text-center text-white/50">Loading…</p>;
+        return (
+            <div className="flex flex-col gap-8 py-4" aria-hidden="true">
+                <div className="skeleton h-9 w-48" />
+                <div className="skeleton h-72 w-full" />
+                <div className="skeleton h-24 w-full" />
+            </div>
+        );
     }
 
     if (activities.length === 0) {
         return (
             <div className="flex flex-col items-center gap-5 py-16 text-center">
-                <div className="text-5xl">🧭</div>
+                <IkigaiMark className="w-16 h-16" />
                 <h1>No map yet</h1>
-                <p className="max-w-sm text-white/70">Map your activities across the four circles to discover your ikigai.</p>
-                <Link href="/discover" className="btn btn-lg">
-                    Start discovering
-                </Link>
+                <p className="max-w-sm text-white/65">Map your activities across the four circles to discover your ikigai.</p>
+                <div className="flex flex-col w-full max-w-xs gap-3">
+                    <Link href="/discover" className="btn btn-lg">
+                        Start discovering
+                    </Link>
+                    <button type="button" className="btn btn-ghost" onClick={() => replaceAll(buildExampleActivities())}>
+                        Load an example
+                    </button>
+                </div>
             </div>
         );
     }
@@ -49,9 +63,9 @@ export default function MapPage() {
             )}
 
             {groups.almost.length > 0 && (
-                <Section title="Almost there" subtitle="Three of four. A small shift could bring these to the centre.">
+                <Section title="Almost there" subtitle="Just one circle away from your ikigai.">
                     {groups.almost.map((a) => (
-                        <ActivityRow key={a.id} activity={a} note={a.region.missing ? `Missing: ${a.region.missing.short}` : undefined} />
+                        <ActivityRow key={a.id} activity={a} badge={a.region.label} showGaps />
                     ))}
                 </Section>
             )}
@@ -59,7 +73,7 @@ export default function MapPage() {
             {groups.overlap.length > 0 && (
                 <Section title="Overlaps" subtitle="Two circles meet here.">
                     {groups.overlap.map((a) => (
-                        <ActivityRow key={a.id} activity={a} note={a.region.label} />
+                        <ActivityRow key={a.id} activity={a} badge={a.region.label} showGaps />
                     ))}
                 </Section>
             )}
@@ -67,7 +81,7 @@ export default function MapPage() {
             {groups.single.length > 0 && (
                 <Section title="One circle" subtitle="A single area so far.">
                     {groups.single.map((a) => (
-                        <ActivityRow key={a.id} activity={a} note={a.region.label} />
+                        <ActivityRow key={a.id} activity={a} badge={a.region.label} showGaps />
                     ))}
                 </Section>
             )}
@@ -84,17 +98,9 @@ export default function MapPage() {
                 <Link href="/discover" className="btn btn-lg grow text-center">
                     Edit my map
                 </Link>
-                <button
-                    type="button"
-                    className="btn btn-ghost"
-                    onClick={() => {
-                        if (window.confirm('Clear all activities and start over? This cannot be undone.')) {
-                            reset();
-                        }
-                    }}
-                >
-                    Reset
-                </button>
+                <Link href="/settings" className="btn btn-ghost">
+                    Manage data
+                </Link>
             </div>
         </div>
     );
@@ -107,30 +113,94 @@ function Section({ title, subtitle, accent, children }) {
                 <h2 className="text-xl" style={accent ? { color: accent } : undefined}>
                     {title}
                 </h2>
-                {subtitle && <p className="text-sm text-white/50">{subtitle}</p>}
+                {subtitle && <p className="text-sm text-white/65">{subtitle}</p>}
             </div>
             <ul className="flex flex-col gap-2">{children}</ul>
         </section>
     );
 }
 
-function ActivityRow({ activity, note, highlight }) {
+function ActivityRow({ activity, badge, highlight, showGaps }) {
+    const { renameActivity } = useIkigai();
+    const [editing, setEditing] = useState(false);
+    const gaps = showGaps ? missingDims(activity) : [];
     return (
         <li
             className={[
-                'flex items-center gap-3 rounded-xl px-4 py-3 ring-1',
+                'flex flex-col gap-2 rounded-xl px-4 py-3 ring-1',
                 highlight ? 'bg-white/10 ring-white/20' : 'bg-white/5 ring-white/10'
             ].join(' ')}
         >
-            <span className="font-medium">{activity.name}</span>
-            {note && <span className="text-xs text-white/50">{note}</span>}
-            <span className="ml-auto flex items-center gap-1" aria-hidden="true">
-                {DIMENSIONS.filter((d) => activity[d.key]).map((d) => (
-                    <span key={d.key} title={d.short}>
-                        {d.emoji}
-                    </span>
-                ))}
-            </span>
+            <div className="flex items-center gap-2">
+                {editing ? (
+                    <>
+                        <input
+                            className="input grow"
+                            value={activity.name}
+                            onChange={(e) => renameActivity(activity.id, e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') setEditing(false);
+                            }}
+                            aria-label="Activity name"
+                            autoFocus
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setEditing(false)}
+                            aria-label="Done renaming"
+                            className="flex items-center justify-center w-9 h-9 shrink-0 rounded-lg bg-primary text-primary-content"
+                        >
+                            <IconCheck className="w-4 h-4" />
+                        </button>
+                    </>
+                ) : (
+                    <>
+                        <span className="font-medium">{activity.name}</span>
+                        {badge && <span className="text-xs text-white/55">{badge}</span>}
+                        <button
+                            type="button"
+                            onClick={() => setEditing(true)}
+                            aria-label={`Rename ${activity.name}`}
+                            className="flex items-center justify-center w-7 h-7 rounded-full text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+                        >
+                            <IconPencil className="w-3.5 h-3.5" />
+                        </button>
+                        <span className="ml-auto flex items-center gap-1" aria-hidden="true">
+                            {DIMENSIONS.filter((d) => activity[d.key]).map((d) => (
+                                <span key={d.key} title={d.short}>
+                                    {d.emoji}
+                                </span>
+                            ))}
+                        </span>
+                    </>
+                )}
+            </div>
+
+            {activity.note && <p className="text-sm italic text-white/55">“{activity.note}”</p>}
+
+            {gaps.length > 0 && (
+                <div className="flex flex-wrap items-center gap-1.5 text-xs text-white/55">
+                    <span>To grow:</span>
+                    {gaps.map((d) => (
+                        <span
+                            key={d.key}
+                            className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5"
+                            style={{ color: d.hex, borderColor: d.hex }}
+                        >
+                            + {d.short}
+                        </span>
+                    ))}
+                </div>
+            )}
+
+            <div className="flex items-center justify-end">
+                <Link
+                    href={`/follow/new?activityId=${activity.id}`}
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-primary no-underline hover:opacity-80"
+                >
+                    Follow this <IconArrowRight className="w-3.5 h-3.5" />
+                </Link>
+            </div>
         </li>
     );
 }

@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
-
 @import 'tailwindcss';
 
 @theme {
@@ -17,52 +15,37 @@
     --color-need: #34d399;
     --color-pay: #60a5fa;
     --color-ikigai: #f7d488;
-    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-        'Noto Color Emoji';
+    --spacing-touch: 2.75rem;
+    --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
 @layer base {
     h1 {
-        @apply text-4xl font-bold tracking-tight sm:text-5xl;
+        @apply text-3xl font-bold tracking-tight sm:text-4xl;
     }
 
     h2 {
-        @apply text-2xl font-bold sm:text-3xl;
+        @apply text-2xl font-bold;
     }
 
     h3 {
-        @apply text-xl font-bold;
+        @apply text-lg font-bold;
     }
 
     a:not(.btn) {
         @apply underline transition hover:opacity-80;
     }
 
-    :not(pre) > code {
-        @apply px-1 py-0.5 font-mono rounded bg-neutral-900 text-yellow-200;
-        font-size: 0.9em;
+    /* Visible keyboard focus everywhere. */
+    :focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+        border-radius: 4px;
     }
 }
 
 @layer components {
-    .markdown {
-        > * {
-            @apply my-4;
-        }
-
-        :where(h1, h2) {
-            @apply mt-12 mb-6;
-        }
-
-        > :first-child {
-            @apply mt-0;
-        }
-
-        > :last-child {
-            @apply mb-0;
-        }
-    }
-
     .surface {
         @apply p-5 rounded-2xl bg-white/5 ring-1 ring-white/10;
     }
@@ -73,9 +56,10 @@
 
     .btn {
         @apply inline-flex items-center justify-center gap-2 font-bold text-center no-underline transition-colors cursor-pointer bg-primary text-primary-content;
-        padding: var(--btn-py, 0.875rem) var(--btn-px, 1.25rem);
-        font-size: var(--btn-font-size, 0.875rem);
-        border-radius: var(--btn-border-radius, 0.25rem);
+        padding: var(--btn-py, 0.75rem) var(--btn-px, 1.25rem);
+        font-size: var(--btn-font-size, 0.9375rem);
+        border-radius: var(--btn-border-radius, 0.875rem);
+        min-height: var(--spacing-touch);
 
         &:hover {
             @apply bg-primary/85;
@@ -87,9 +71,9 @@
     }
 
     .btn-lg {
-        --btn-font-size: 1.125rem;
+        --btn-font-size: 1.0625rem;
         --btn-px: 1.5rem;
-        --btn-py: 1.125rem;
+        --btn-py: 1rem;
     }
 
     .btn-ghost {
@@ -101,78 +85,51 @@
     }
 
     .input {
-        @apply px-4 py-3 text-sm border rounded-sm border-neutral-300 text-neutral-900 focus:border-primary focus:outline-3 focus:outline-primary/30;
+        @apply px-4 py-3 text-sm rounded-xl border border-neutral-300 bg-white text-neutral-900 focus:border-primary focus:outline-3 focus:outline-primary/30;
     }
 
-    .diff {
-        direction: ltr;
-        container-type: inline-size;
-        grid-template-columns: auto 1fr;
-
-        &:focus-visible,
-        &:has(.diff-item-1:focus),
-        &:has(.diff-item-2:focus) {
-            outline: 2px solid var(--color-gray-400);
-            outline-offset: 1px;
-        }
-        &:focus-visible {
-            .diff-resizer {
-                min-width: 80cqi;
-                max-width: 80cqi;
-            }
-        }
-        &:has(.diff-item-2:focus-visible) {
-            .diff-resizer {
-                min-width: 20cqi;
-                max-width: 20cqi;
-            }
-        }
+    .skeleton {
+        @apply rounded-xl bg-white/10 animate-pulse;
     }
+}
 
-    .diff-resizer {
-        width: 50cqi;
-        max-width: calc(100cqi - 1rem);
-        transform: scaleY(3) translate(0.35rem, 0.08rem);
-        transform-origin: 100% 100%;
-        clip-path: inset(calc(100% - 0.75rem) 0 0 calc(100% - 0.75rem));
-        transition: min-width 0.3s ease-out, max-width 0.3s ease-out;
+/* Micro-interactions */
+@keyframes pop-in {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
     }
-
-    .diff-item-2 {
-        &:after {
-            content: '';
-            width: 1.25rem;
-            height: 1.875rem;
-            position: absolute;
-            top: 50%;
-            right: 1px;
-            bottom: 0;
-            translate: 50% -50%;
-            background: color-mix(in oklab, var(--color-white) 50%, transparent);
-            border-radius: 9999px;
-            border: 2px solid var(--color-white);
-            backdrop-filter: blur(8px);
-            pointer-events: none;
-            z-index: 2;
-            box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-gray-900) 5%, transparent),
-                0 1px 3px 0 color-mix(in oklab, var(--color-gray-900) 20%, transparent);
-        }
-        @supports (-webkit-overflow-scrolling: touch) and (overflow: -webkit-paged-x) {
-            &:after {
-                content: none;
-            }
-        }
+    70% {
+        transform: scale(1.15);
     }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
 
-    .diff-item-1,
-    .diff-item-2 {
-        > * {
-            height: 100%;
-            width: 100cqi;
-            position: absolute;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-        }
+.animate-pop {
+    animation: pop-in 0.26s ease-out;
+}
+
+@keyframes rise-in {
+    0% {
+        transform: translateY(6px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.animate-rise {
+    animation: rise-in 0.3s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-pop,
+    .animate-rise {
+        animation: none;
     }
 }

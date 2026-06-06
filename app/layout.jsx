@@ -1,5 +1,6 @@
 import '../styles/globals.css';
 import { AppHeader } from 'components/app-header';
+import { BottomNav } from 'components/bottom-nav';
 import { SwRegister } from 'components/sw-register';
 
 export const metadata = {
@@ -28,9 +29,10 @@ export default function RootLayout({ children }) {
                 <div className="flex flex-col min-h-screen px-5 bg-noise sm:px-8">
                     <div className="flex flex-col w-full max-w-2xl mx-auto grow">
                         <AppHeader />
-                        <main className="grow pb-16">{children}</main>
+                        <main className="grow pb-28 sm:pb-16">{children}</main>
                     </div>
                 </div>
+                <BottomNav />
                 <SwRegister />
             </body>
         </html>
