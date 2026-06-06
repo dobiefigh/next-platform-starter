@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useIkigai } from 'lib/use-ikigai';
 import { useFollow } from 'lib/use-follow';
-import { summarize } from 'lib/ikigai';
+import { missingDims, summarize } from 'lib/ikigai';
 
 export function NewGoalForm() {
     const router = useRouter();
@@ -129,6 +129,15 @@ export function NewGoalForm() {
         setHabits((prev) => [...prev, { title: '', frequency: 'daily' }]);
     }
 
+    function addSuggested(title) {
+        setHabits((prev) => {
+            const emptyIdx = prev.findIndex((h) => !h.title.trim());
+            if (emptyIdx >= 0) return prev.map((h, i) => (i === emptyIdx ? { ...h, title } : h));
+            if (prev.length >= 5) return prev;
+            return [...prev, { title, frequency: 'daily' }];
+        });
+    }
+
     function save() {
         const validHabits = habits.filter((h) => h.title.trim());
         if (validHabits.length === 0) return;
@@ -137,6 +146,7 @@ export function NewGoalForm() {
     }
 
     const canSave = habits.some((h) => h.title.trim());
+    const suggestions = suggestedHabits(activity);
 
     return (
         <div className="flex flex-col gap-6 py-4">
@@ -148,6 +158,19 @@ export function NewGoalForm() {
                     <span className="font-semibold text-white">{title}</span>.
                 </p>
             </header>
+
+            {suggestions.length > 0 && (
+                <div className="flex flex-col gap-2">
+                    <span className="text-sm text-white/65">{suggestions.gapBased ? 'Ideas to close your gaps:' : 'Need ideas?'}</span>
+                    <div className="flex flex-wrap gap-2">
+                        {suggestions.map((s) => (
+                            <button key={s} type="button" className="chip text-left hover:bg-white/15" onClick={() => addSuggested(s)}>
+                                + {s}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <ul className="flex flex-col gap-3">
                 {habits.map((habit, i) => (
@@ -263,4 +286,25 @@ function WizardSteps({ current }) {
 const PLACEHOLDERS = ['Write for 20 minutes', 'Practice for 30 minutes', 'Review one lesson', 'Take one small step'];
 function defaultHabitPlaceholder(i) {
     return PLACEHOLDERS[i % PLACEHOLDERS.length];
+}
+
+// Habit ideas tailored to the dimensions an activity is missing.
+const GAP_HABITS = {
+    love: (n) => `Spend 15 minutes enjoying ${n}`,
+    skill: (n) => `Practice ${n} for 20 minutes`,
+    need: (n) => `Find one person who benefits from ${n}`,
+    pay: (n) => `Research one way to earn from ${n}`
+};
+
+function genericHabits(n) {
+    return [`Work on ${n} for 25 minutes`, `Reflect on ${n} once a week`, `Take one small step on ${n}`];
+}
+
+function suggestedHabits(activity) {
+    if (!activity) return Object.assign([], { gapBased: false });
+    const missing = missingDims(activity);
+    if (missing.length > 0 && missing.length < 4) {
+        return Object.assign(missing.map((d) => GAP_HABITS[d.key](activity.name)), { gapBased: true });
+    }
+    return Object.assign(genericHabits(activity.name), { gapBased: false });
 }

@@ -3,10 +3,10 @@
 import Link from 'next/link';
 import { useIkigai } from 'lib/use-ikigai';
 import { IkigaiVenn } from 'components/ikigai/venn';
-import { DIMENSIONS, IKIGAI_HEX, summarize } from 'lib/ikigai';
+import { DIMENSIONS, IKIGAI_HEX, missingDims, summarize } from 'lib/ikigai';
 
 export default function MapPage() {
-    const { activities, ready, reset } = useIkigai();
+    const { activities, ready } = useIkigai();
 
     if (!ready) {
         return <p className="py-16 text-center text-white/50">Loading…</p>;
@@ -43,15 +43,15 @@ export default function MapPage() {
             {groups.ikigai.length > 0 && (
                 <Section title="Your ikigai" accent={IKIGAI_HEX} subtitle="Where all four circles meet — protect and grow these.">
                     {groups.ikigai.map((a) => (
-                        <ActivityRow key={a.id} activity={a} highlight followHref={`/follow/new?activityId=${a.id}`} />
+                        <ActivityRow key={a.id} activity={a} highlight />
                     ))}
                 </Section>
             )}
 
             {groups.almost.length > 0 && (
-                <Section title="Almost there" subtitle="Three of four. A small shift could bring these to the centre.">
+                <Section title="Almost there" subtitle="Just one circle away from your ikigai.">
                     {groups.almost.map((a) => (
-                        <ActivityRow key={a.id} activity={a} note={a.region.missing ? `Missing: ${a.region.missing.short}` : undefined} />
+                        <ActivityRow key={a.id} activity={a} badge={a.region.label} showGaps />
                     ))}
                 </Section>
             )}
@@ -59,7 +59,7 @@ export default function MapPage() {
             {groups.overlap.length > 0 && (
                 <Section title="Overlaps" subtitle="Two circles meet here.">
                     {groups.overlap.map((a) => (
-                        <ActivityRow key={a.id} activity={a} note={a.region.label} />
+                        <ActivityRow key={a.id} activity={a} badge={a.region.label} showGaps />
                     ))}
                 </Section>
             )}
@@ -67,7 +67,7 @@ export default function MapPage() {
             {groups.single.length > 0 && (
                 <Section title="One circle" subtitle="A single area so far.">
                     {groups.single.map((a) => (
-                        <ActivityRow key={a.id} activity={a} note={a.region.label} />
+                        <ActivityRow key={a.id} activity={a} badge={a.region.label} showGaps />
                     ))}
                 </Section>
             )}
@@ -84,17 +84,9 @@ export default function MapPage() {
                 <Link href="/discover" className="btn btn-lg grow text-center">
                     Edit my map
                 </Link>
-                <button
-                    type="button"
-                    className="btn btn-ghost"
-                    onClick={() => {
-                        if (window.confirm('Clear all activities and start over? This cannot be undone.')) {
-                            reset();
-                        }
-                    }}
-                >
-                    Reset
-                </button>
+                <Link href="/settings" className="btn btn-ghost">
+                    Manage data
+                </Link>
             </div>
         </div>
     );
@@ -114,30 +106,52 @@ function Section({ title, subtitle, accent, children }) {
     );
 }
 
-function ActivityRow({ activity, note, highlight, followHref }) {
+function ActivityRow({ activity, badge, highlight, showGaps }) {
+    const gaps = showGaps ? missingDims(activity) : [];
     return (
         <li
             className={[
-                'flex items-center gap-3 rounded-xl px-4 py-3 ring-1',
+                'flex flex-col gap-2 rounded-xl px-4 py-3 ring-1',
                 highlight ? 'bg-white/10 ring-white/20' : 'bg-white/5 ring-white/10'
             ].join(' ')}
         >
-            <span className="font-medium">{activity.name}</span>
-            {note && <span className="text-xs text-white/50">{note}</span>}
-            <span className="ml-auto flex items-center gap-2">
-                <span className="flex items-center gap-1" aria-hidden="true">
+            <div className="flex items-center gap-3">
+                <span className="font-medium">{activity.name}</span>
+                {badge && <span className="text-xs text-white/55">{badge}</span>}
+                <span className="ml-auto flex items-center gap-1" aria-hidden="true">
                     {DIMENSIONS.filter((d) => activity[d.key]).map((d) => (
                         <span key={d.key} title={d.short}>
                             {d.emoji}
                         </span>
                     ))}
                 </span>
-                {followHref && (
-                    <Link href={followHref} className="text-xs text-primary no-underline hover:opacity-80 shrink-0">
-                        Follow →
-                    </Link>
-                )}
-            </span>
+            </div>
+
+            {activity.note && <p className="text-sm italic text-white/55">“{activity.note}”</p>}
+
+            {gaps.length > 0 && (
+                <div className="flex flex-wrap items-center gap-1.5 text-xs text-white/55">
+                    <span>To grow:</span>
+                    {gaps.map((d) => (
+                        <span
+                            key={d.key}
+                            className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5"
+                            style={{ color: d.hex, borderColor: d.hex }}
+                        >
+                            + {d.short}
+                        </span>
+                    ))}
+                </div>
+            )}
+
+            <div className="flex items-center justify-end">
+                <Link
+                    href={`/follow/new?activityId=${activity.id}`}
+                    className="text-xs font-semibold text-primary no-underline hover:opacity-80"
+                >
+                    Follow this →
+                </Link>
+            </div>
         </li>
     );
 }

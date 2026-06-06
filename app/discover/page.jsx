@@ -7,7 +7,7 @@ import { useIkigai } from 'lib/use-ikigai';
 import { DIMENSIONS, EXAMPLES, summarize } from 'lib/ikigai';
 
 export default function DiscoverPage() {
-    const { activities, ready, addActivity, removeActivity, toggleDim } = useIkigai();
+    const { activities, ready, addActivity, removeActivity, toggleDim, setNote } = useIkigai();
     const [step, setStep] = useState('intro');
     const [rateIndex, setRateIndex] = useState(0);
     const [draft, setDraft] = useState('');
@@ -137,23 +137,34 @@ export default function DiscoverPage() {
                                 onClick={() => toggleDim(activity.id, d.key)}
                                 aria-pressed={active}
                                 className={[
-                                    'flex items-center gap-3 rounded-2xl px-4 py-4 text-left transition-colors ring-1',
+                                    'flex items-start gap-3 rounded-2xl px-4 py-4 text-left transition-colors ring-1 min-h-touch',
                                     active ? 'ring-transparent' : 'bg-white/5 ring-white/10 hover:bg-white/10'
                                 ].join(' ')}
                                 style={active ? { backgroundColor: d.hex, color: '#0b1020' } : undefined}
                             >
-                                <span className="text-2xl" aria-hidden="true">
+                                <span className="text-2xl leading-6" aria-hidden="true">
                                     {d.emoji}
                                 </span>
-                                <span className="flex flex-col">
+                                <span className="flex flex-col gap-0.5">
                                     <span className="font-semibold">{d.question}</span>
-                                    <span className={active ? 'text-sm text-black/60' : 'text-sm text-white/50'}>{d.label}</span>
+                                    <span className={active ? 'text-sm text-black/65' : 'text-sm text-white/55'}>{d.prompt}</span>
                                 </span>
-                                <span className="ml-auto text-lg">{active ? '✓' : ''}</span>
+                                <span className="ml-auto text-lg leading-6">{active ? '✓' : ''}</span>
                             </button>
                         );
                     })}
                 </div>
+
+                <label className="flex flex-col gap-1.5">
+                    <span className="text-sm font-medium text-white/70">Reflection (optional)</span>
+                    <textarea
+                        className="input bg-white min-h-20 resize-y"
+                        placeholder="Why does this matter to you? What does it look like at its best?"
+                        value={activity.note ?? ''}
+                        onChange={(e) => setNote(activity.id, e.target.value)}
+                        aria-label={`Reflection note for ${activity.name}`}
+                    />
+                </label>
 
                 <div className="flex items-center gap-3 pt-2">
                     <button
