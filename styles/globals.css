@@ -12,6 +12,11 @@
     --color-primary: #2bdcd2;
     --color-primary-content: #171717;
     --color-secondary: #016968;
+    --color-love: #fb7185;
+    --color-skill: #fbbf24;
+    --color-need: #34d399;
+    --color-pay: #60a5fa;
+    --color-ikigai: #f7d488;
     --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
 }
@@ -58,6 +63,14 @@
         }
     }
 
+    .surface {
+        @apply p-5 rounded-2xl bg-white/5 ring-1 ring-white/10;
+    }
+
+    .chip {
+        @apply inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-sm;
+    }
+
     .btn {
         @apply inline-flex items-center justify-center gap-2 font-bold text-center no-underline transition-colors cursor-pointer bg-primary text-primary-content;
         padding: var(--btn-py, 0.875rem) var(--btn-px, 1.25rem);
@@ -77,6 +90,14 @@
         --btn-font-size: 1.125rem;
         --btn-px: 1.5rem;
         --btn-py: 1.125rem;
+    }
+
+    .btn-ghost {
+        @apply bg-white/10 text-white;
+
+        &:hover {
+            @apply bg-white/15;
+        }
     }
 
     .input {
