@@ -6,7 +6,8 @@ import { IkigaiMark } from 'components/ikigai/mark';
 
 const navItems = [
     { href: '/discover', label: 'Discover' },
-    { href: '/map', label: 'Your map' }
+    { href: '/map', label: 'Map' },
+    { href: '/follow', label: 'Follow' }
 ];
 
 export function AppHeader() {

@@ -43,7 +43,7 @@ export default function MapPage() {
             {groups.ikigai.length > 0 && (
                 <Section title="Your ikigai" accent={IKIGAI_HEX} subtitle="Where all four circles meet — protect and grow these.">
                     {groups.ikigai.map((a) => (
-                        <ActivityRow key={a.id} activity={a} highlight />
+                        <ActivityRow key={a.id} activity={a} highlight followHref={`/follow/new?activityId=${a.id}`} />
                     ))}
                 </Section>
             )}
@@ -114,7 +114,7 @@ function Section({ title, subtitle, accent, children }) {
     );
 }
 
-function ActivityRow({ activity, note, highlight }) {
+function ActivityRow({ activity, note, highlight, followHref }) {
     return (
         <li
             className={[
@@ -124,12 +124,19 @@ function ActivityRow({ activity, note, highlight }) {
         >
             <span className="font-medium">{activity.name}</span>
             {note && <span className="text-xs text-white/50">{note}</span>}
-            <span className="ml-auto flex items-center gap-1" aria-hidden="true">
-                {DIMENSIONS.filter((d) => activity[d.key]).map((d) => (
-                    <span key={d.key} title={d.short}>
-                        {d.emoji}
-                    </span>
-                ))}
+            <span className="ml-auto flex items-center gap-2">
+                <span className="flex items-center gap-1" aria-hidden="true">
+                    {DIMENSIONS.filter((d) => activity[d.key]).map((d) => (
+                        <span key={d.key} title={d.short}>
+                            {d.emoji}
+                        </span>
+                    ))}
+                </span>
+                {followHref && (
+                    <Link href={followHref} className="text-xs text-primary no-underline hover:opacity-80 shrink-0">
+                        Follow →
+                    </Link>
+                )}
             </span>
         </li>
     );
