@@ -7,7 +7,8 @@ import { IkigaiMark } from 'components/ikigai/mark';
 const navItems = [
     { href: '/discover', label: 'Discover' },
     { href: '/map', label: 'Map' },
-    { href: '/follow', label: 'Follow' }
+    { href: '/follow', label: 'Follow' },
+    { href: '/settings', label: 'Data' }
 ];
 
 export function AppHeader() {
@@ -19,7 +20,7 @@ export function AppHeader() {
                 <IkigaiMark className="w-7 h-7" />
                 <span>Ikigai</span>
             </Link>
-            <ul className="flex items-center gap-1 ml-auto text-sm">
+            <ul className="hidden sm:flex items-center gap-1 ml-auto text-sm">
                 {navItems.map((item) => {
                     const active = pathname === item.href;
                     return (

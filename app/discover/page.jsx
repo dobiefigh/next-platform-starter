@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useIkigai } from 'lib/use-ikigai';
 import { DIMENSIONS, EXAMPLES, summarize } from 'lib/ikigai';
+import { IconCheck, IconPlus, IconX } from 'components/icons';
 
 export default function DiscoverPage() {
     const { activities, ready, addActivity, removeActivity, toggleDim, setNote } = useIkigai();
@@ -59,10 +59,10 @@ export default function DiscoverPage() {
 
                 {unusedExamples.length > 0 && (
                     <div className="flex flex-wrap gap-2">
-                        <span className="self-center text-sm text-white/40">Try:</span>
+                        <span className="self-center text-sm text-white/60">Try:</span>
                         {unusedExamples.slice(0, 6).map((ex) => (
                             <button key={ex} type="button" className="chip hover:bg-white/15" onClick={() => addActivity(ex)}>
-                                + {ex}
+                                <IconPlus className="w-3 h-3" /> {ex}
                             </button>
                         ))}
                     </div>
@@ -77,15 +77,15 @@ export default function DiscoverPage() {
                                     type="button"
                                     onClick={() => removeActivity(a.id)}
                                     aria-label={`Remove ${a.name}`}
-                                    className="text-white/50 hover:text-white"
+                                    className="flex items-center justify-center -mr-1 w-6 h-6 rounded-full text-white/55 hover:text-white hover:bg-white/10 transition-colors"
                                 >
-                                    ✕
+                                    <IconX className="w-3.5 h-3.5" />
                                 </button>
                             </li>
                         ))}
                     </ul>
                 ) : (
-                    <p className="text-sm text-white/40">Nothing yet — add your first activity above.</p>
+                    <p className="text-sm text-white/60">Nothing yet — add your first activity above.</p>
                 )}
 
                 <div className="flex items-center gap-3 pt-2">
@@ -114,7 +114,7 @@ export default function DiscoverPage() {
             <div className="flex flex-col gap-6 py-4">
                 <Steps current={2} />
                 <header className="flex flex-col gap-2">
-                    <div className="flex items-center justify-between text-sm text-white/50">
+                    <div className="flex items-center justify-between text-sm text-white/65">
                         <span>
                             Activity {index + 1} of {activities.length}
                         </span>
@@ -149,7 +149,7 @@ export default function DiscoverPage() {
                                     <span className="font-semibold">{d.question}</span>
                                     <span className={active ? 'text-sm text-black/65' : 'text-sm text-white/55'}>{d.prompt}</span>
                                 </span>
-                                <span className="ml-auto text-lg leading-6">{active ? '✓' : ''}</span>
+                                <span className="ml-auto leading-6">{active && <IconCheck className="w-5 h-5" />}</span>
                             </button>
                         );
                     })}
@@ -277,12 +277,12 @@ function Steps({ current }) {
                         <span
                             className={[
                                 'flex items-center justify-center w-5 h-5 rounded-full font-bold',
-                                active ? 'bg-primary text-primary-content' : 'bg-white/10 text-white/50'
+                                active ? 'bg-primary text-primary-content' : 'bg-white/10 text-white/65'
                             ].join(' ')}
                         >
                             {n}
                         </span>
-                        <span className={active ? 'text-white' : 'text-white/40'}>{label}</span>
+                        <span className={active ? 'text-white' : 'text-white/60'}>{label}</span>
                         {n < labels.length && <span className="text-white/20">—</span>}
                     </li>
                 );
@@ -301,5 +301,12 @@ function Progress({ value, max }) {
 }
 
 function Loading() {
-    return <p className="py-16 text-center text-white/50">Loading…</p>;
+    return (
+        <div className="flex flex-col gap-6 py-6" aria-hidden="true">
+            <div className="skeleton h-4 w-48" />
+            <div className="skeleton h-9 w-40" />
+            <div className="skeleton h-12 w-full" />
+            <div className="skeleton h-32 w-full" />
+        </div>
+    );
 }

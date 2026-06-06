@@ -3,21 +3,29 @@
 import Link from 'next/link';
 import { useIkigai } from 'lib/use-ikigai';
 import { IkigaiVenn } from 'components/ikigai/venn';
+import { IkigaiMark } from 'components/ikigai/mark';
+import { IconArrowRight } from 'components/icons';
 import { DIMENSIONS, IKIGAI_HEX, missingDims, summarize } from 'lib/ikigai';
 
 export default function MapPage() {
     const { activities, ready } = useIkigai();
 
     if (!ready) {
-        return <p className="py-16 text-center text-white/50">Loading…</p>;
+        return (
+            <div className="flex flex-col gap-8 py-4" aria-hidden="true">
+                <div className="skeleton h-9 w-48" />
+                <div className="skeleton h-72 w-full" />
+                <div className="skeleton h-24 w-full" />
+            </div>
+        );
     }
 
     if (activities.length === 0) {
         return (
             <div className="flex flex-col items-center gap-5 py-16 text-center">
-                <div className="text-5xl">🧭</div>
+                <IkigaiMark className="w-16 h-16" />
                 <h1>No map yet</h1>
-                <p className="max-w-sm text-white/70">Map your activities across the four circles to discover your ikigai.</p>
+                <p className="max-w-sm text-white/65">Map your activities across the four circles to discover your ikigai.</p>
                 <Link href="/discover" className="btn btn-lg">
                     Start discovering
                 </Link>
@@ -99,7 +107,7 @@ function Section({ title, subtitle, accent, children }) {
                 <h2 className="text-xl" style={accent ? { color: accent } : undefined}>
                     {title}
                 </h2>
-                {subtitle && <p className="text-sm text-white/50">{subtitle}</p>}
+                {subtitle && <p className="text-sm text-white/65">{subtitle}</p>}
             </div>
             <ul className="flex flex-col gap-2">{children}</ul>
         </section>
@@ -147,9 +155,9 @@ function ActivityRow({ activity, badge, highlight, showGaps }) {
             <div className="flex items-center justify-end">
                 <Link
                     href={`/follow/new?activityId=${activity.id}`}
-                    className="text-xs font-semibold text-primary no-underline hover:opacity-80"
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-primary no-underline hover:opacity-80"
                 >
-                    Follow this →
+                    Follow this <IconArrowRight className="w-3.5 h-3.5" />
                 </Link>
             </div>
         </li>

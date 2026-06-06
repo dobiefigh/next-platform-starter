@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useIkigai } from 'lib/use-ikigai';
 import { useFollow } from 'lib/use-follow';
 import { missingDims, summarize } from 'lib/ikigai';
+import { IconPlus, IconX } from 'components/icons';
 
 export function NewGoalForm() {
     const router = useRouter();
@@ -21,7 +22,7 @@ export function NewGoalForm() {
     const [title, setTitle] = useState('');
     const [habits, setHabits] = useState([{ title: '', frequency: 'daily' }]);
 
-    if (!mapReady || !followReady) return <p className="py-16 text-center text-white/50">Loading…</p>;
+    if (!mapReady || !followReady) return <p className="py-16 text-center text-white/65">Loading…</p>;
 
     // --- Step 1: pick activity ---
     if (step === 1) {
@@ -51,20 +52,20 @@ export function NewGoalForm() {
                                     className="w-full flex items-center justify-between gap-3 rounded-xl bg-white/5 px-4 py-3 text-left ring-1 ring-white/10 hover:bg-white/10 transition-colors"
                                 >
                                     <span className="font-medium">{a.name}</span>
-                                    <span className="text-xs text-white/50 shrink-0">{a.region.label}</span>
+                                    <span className="text-xs text-white/65 shrink-0">{a.region.label}</span>
                                 </button>
                             </li>
                         ))}
                     </ul>
                 ) : (
-                    <div className="surface text-center text-white/50 text-sm">
+                    <div className="surface text-center text-white/65 text-sm">
                         No activities on your map yet.{' '}
                         <a href="/discover" className="text-primary">Add some first</a>.
                     </div>
                 )}
 
                 <div className="flex flex-col gap-2 pt-1">
-                    <p className="text-xs text-white/40 text-center">— or type a custom activity —</p>
+                    <p className="text-xs text-white/60 text-center">— or type a custom activity —</p>
                     <CustomActivityInput
                         onSubmit={(name) => {
                             setActivity({ id: null, name });
@@ -96,11 +97,10 @@ export function NewGoalForm() {
                     className="flex flex-col gap-4"
                 >
                     <input
-                        className="input bg-white"
+                        className="input"
                         placeholder="e.g. Publish my first article, Run a 5K…"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        autoFocus
                         aria-label="Goal title"
                     />
                     <div className="flex gap-3">
@@ -191,9 +191,9 @@ export function NewGoalForm() {
                                 type="button"
                                 onClick={() => removeHabit(i)}
                                 aria-label="Remove habit"
-                                className="text-white/30 hover:text-white/70 transition-colors px-1"
+                                className="flex items-center justify-center w-9 h-9 shrink-0 rounded-lg text-white/45 hover:text-white hover:bg-white/10 transition-colors"
                             >
-                                ✕
+                                <IconX className="w-4 h-4" />
                             </button>
                         )}
                     </li>
@@ -201,8 +201,8 @@ export function NewGoalForm() {
             </ul>
 
             {habits.length < 5 && (
-                <button type="button" onClick={addHabit} className="text-sm text-primary hover:opacity-80 self-start no-underline">
-                    + Add another habit
+                <button type="button" onClick={addHabit} className="inline-flex items-center gap-1 text-sm text-primary hover:opacity-80 self-start no-underline">
+                    <IconPlus className="w-4 h-4" /> Add another habit
                 </button>
             )}
 
@@ -271,10 +271,10 @@ function WizardSteps({ current }) {
                 const active = n <= current;
                 return (
                     <li key={label} className="flex items-center gap-2">
-                        <span className={['flex items-center justify-center w-5 h-5 rounded-full font-bold', active ? 'bg-primary text-primary-content' : 'bg-white/10 text-white/50'].join(' ')}>
+                        <span className={['flex items-center justify-center w-5 h-5 rounded-full font-bold', active ? 'bg-primary text-primary-content' : 'bg-white/10 text-white/65'].join(' ')}>
                             {n}
                         </span>
-                        <span className={active ? 'text-white' : 'text-white/40'}>{label}</span>
+                        <span className={active ? 'text-white' : 'text-white/60'}>{label}</span>
                         {n < labels.length && <span className="text-white/20">—</span>}
                     </li>
                 );
