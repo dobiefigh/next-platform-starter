@@ -1,9 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useFollow } from 'lib/use-follow';
 import { goalProgressToday, goalStreak, habitsForGoal, isDone, streakFor } from 'lib/follow';
-import { IconCheck, IconFlame, IconPlus, IconX } from 'components/icons';
+import { IconCheck, IconFlame, IconPencil, IconPlus, IconX } from 'components/icons';
+import { HistoryHeatmap } from 'components/follow/history-heatmap';
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -100,6 +102,16 @@ export default function FollowPage() {
                     ))}
                 </ul>
             </section>
+
+            {checkins.length > 0 && (
+                <section className="flex flex-col gap-3">
+                    <h2 className="text-xl">Consistency</h2>
+                    <div className="surface">
+                        <HistoryHeatmap checkins={checkins} />
+                    </div>
+                    <p className="text-xs text-white/55">Daily habit check-ins over the last 12 weeks.</p>
+                </section>
+            )}
         </div>
     );
 }
@@ -144,6 +156,59 @@ function HabitCheckbox({ habit, goalTitle, checkins, onToggle }) {
 }
 
 function GoalCard({ goal, habits, checkins, onRemove }) {
+    const { renameGoal, addHabit, updateHabit, removeHabit } = useFollow();
+    const [editing, setEditing] = useState(false);
+    const goalHabits = habitsForGoal(goal.id, habits);
+
+    if (editing) {
+        return (
+            <li className="surface flex flex-col gap-4">
+                <label className="flex flex-col gap-1.5">
+                    <span className="text-xs font-medium text-white/65">Goal</span>
+                    <input
+                        className="input"
+                        value={goal.title}
+                        onChange={(e) => renameGoal(goal.id, e.target.value)}
+                        aria-label="Goal title"
+                    />
+                </label>
+
+                <div className="flex flex-col gap-2">
+                    <span className="text-xs font-medium text-white/65">Habits</span>
+                    {goalHabits.map((h) => (
+                        <div key={h.id} className="flex items-center gap-2">
+                            <input
+                                className="input grow"
+                                value={h.title}
+                                onChange={(e) => updateHabit(h.id, { title: e.target.value })}
+                                aria-label="Habit title"
+                            />
+                            <FreqToggle value={h.frequency} onChange={(v) => updateHabit(h.id, { frequency: v })} />
+                            <button
+                                type="button"
+                                onClick={() => removeHabit(h.id)}
+                                aria-label="Remove habit"
+                                className="flex items-center justify-center w-9 h-9 shrink-0 rounded-lg text-white/45 hover:text-white hover:bg-white/10 transition-colors"
+                            >
+                                <IconX className="w-4 h-4" />
+                            </button>
+                        </div>
+                    ))}
+                    <AddHabitInline onAdd={(t) => addHabit(goal.id, t)} />
+                </div>
+
+                <div className="flex items-center justify-between gap-2">
+                    <button type="button" className="btn btn-ghost bg-love/15 hover:bg-love/25" onClick={onRemove}>
+                        Delete goal
+                    </button>
+                    <button type="button" className="btn" onClick={() => setEditing(false)}>
+                        Done
+                    </button>
+                </div>
+            </li>
+        );
+    }
+
     const { done, total } = goalProgressToday(goal.id, habits, checkins);
     const streak = goalStreak(goal.id, habits, checkins);
     const complete = total > 0 && done === total;
@@ -155,19 +220,19 @@ function GoalCard({ goal, habits, checkins, onRemove }) {
                     <span className="font-semibold">{goal.title}</span>
                     <span className="text-xs text-white/55">{goal.activityName}</span>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-1 shrink-0">
                     {streak >= 2 && (
-                        <span className="flex items-center gap-0.5 text-xs font-semibold text-orange-400">
+                        <span className="flex items-center gap-0.5 mr-1 text-xs font-semibold text-orange-400">
                             <IconFlame className="w-3.5 h-3.5" /> {streak}
                         </span>
                     )}
                     <button
                         type="button"
-                        onClick={onRemove}
-                        aria-label={`Remove goal ${goal.title}`}
-                        className="flex items-center justify-center w-8 h-8 rounded-full text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+                        onClick={() => setEditing(true)}
+                        aria-label={`Edit goal ${goal.title}`}
+                        className="flex items-center justify-center w-8 h-8 rounded-full text-white/45 hover:text-white hover:bg-white/10 transition-colors"
                     >
-                        <IconX className="w-4 h-4" />
+                        <IconPencil className="w-4 h-4" />
                     </button>
                 </div>
             </div>
@@ -186,6 +251,54 @@ function GoalCard({ goal, habits, checkins, onRemove }) {
                 <p className="text-sm text-white/55">No habits yet.</p>
             )}
         </li>
+    );
+}
+
+function FreqToggle({ value, onChange }) {
+    return (
+        <div className="flex rounded-lg overflow-hidden ring-1 ring-white/20 shrink-0 text-xs font-semibold">
+            {['daily', 'weekly'].map((f) => (
+                <button
+                    key={f}
+                    type="button"
+                    onClick={() => onChange(f)}
+                    aria-pressed={value === f}
+                    className={[
+                        'px-2.5 py-2 capitalize transition-colors',
+                        value === f ? 'bg-primary text-primary-content' : 'bg-white/5 text-white/60 hover:bg-white/10'
+                    ].join(' ')}
+                >
+                    {f}
+                </button>
+            ))}
+        </div>
+    );
+}
+
+function AddHabitInline({ onAdd }) {
+    const [value, setValue] = useState('');
+    return (
+        <form
+            onSubmit={(e) => {
+                e.preventDefault();
+                if (value.trim()) {
+                    onAdd(value.trim());
+                    setValue('');
+                }
+            }}
+            className="flex items-center gap-2"
+        >
+            <input
+                className="input grow"
+                placeholder="Add a habit…"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                aria-label="New habit title"
+            />
+            <button type="submit" className="btn shrink-0" disabled={!value.trim()}>
+                <IconPlus className="w-4 h-4" />
+            </button>
+        </form>
     );
 }
 

@@ -1,14 +1,15 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useIkigai } from 'lib/use-ikigai';
 import { IkigaiVenn } from 'components/ikigai/venn';
 import { IkigaiMark } from 'components/ikigai/mark';
-import { IconArrowRight } from 'components/icons';
-import { DIMENSIONS, IKIGAI_HEX, missingDims, summarize } from 'lib/ikigai';
+import { IconArrowRight, IconCheck, IconPencil } from 'components/icons';
+import { buildExampleActivities, DIMENSIONS, IKIGAI_HEX, missingDims, summarize } from 'lib/ikigai';
 
 export default function MapPage() {
-    const { activities, ready } = useIkigai();
+    const { activities, ready, renameActivity, replaceAll } = useIkigai();
 
     if (!ready) {
         return (
@@ -26,9 +27,14 @@ export default function MapPage() {
                 <IkigaiMark className="w-16 h-16" />
                 <h1>No map yet</h1>
                 <p className="max-w-sm text-white/65">Map your activities across the four circles to discover your ikigai.</p>
-                <Link href="/discover" className="btn btn-lg">
-                    Start discovering
-                </Link>
+                <div className="flex flex-col w-full max-w-xs gap-3">
+                    <Link href="/discover" className="btn btn-lg">
+                        Start discovering
+                    </Link>
+                    <button type="button" className="btn btn-ghost" onClick={() => replaceAll(buildExampleActivities())}>
+                        Load an example
+                    </button>
+                </div>
             </div>
         );
     }
@@ -115,6 +121,8 @@ function Section({ title, subtitle, accent, children }) {
 }
 
 function ActivityRow({ activity, badge, highlight, showGaps }) {
+    const { renameActivity } = useIkigai();
+    const [editing, setEditing] = useState(false);
     const gaps = showGaps ? missingDims(activity) : [];
     return (
         <li
@@ -123,16 +131,49 @@ function ActivityRow({ activity, badge, highlight, showGaps }) {
                 highlight ? 'bg-white/10 ring-white/20' : 'bg-white/5 ring-white/10'
             ].join(' ')}
         >
-            <div className="flex items-center gap-3">
-                <span className="font-medium">{activity.name}</span>
-                {badge && <span className="text-xs text-white/55">{badge}</span>}
-                <span className="ml-auto flex items-center gap-1" aria-hidden="true">
-                    {DIMENSIONS.filter((d) => activity[d.key]).map((d) => (
-                        <span key={d.key} title={d.short}>
-                            {d.emoji}
+            <div className="flex items-center gap-2">
+                {editing ? (
+                    <>
+                        <input
+                            className="input grow"
+                            value={activity.name}
+                            onChange={(e) => renameActivity(activity.id, e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') setEditing(false);
+                            }}
+                            aria-label="Activity name"
+                            autoFocus
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setEditing(false)}
+                            aria-label="Done renaming"
+                            className="flex items-center justify-center w-9 h-9 shrink-0 rounded-lg bg-primary text-primary-content"
+                        >
+                            <IconCheck className="w-4 h-4" />
+                        </button>
+                    </>
+                ) : (
+                    <>
+                        <span className="font-medium">{activity.name}</span>
+                        {badge && <span className="text-xs text-white/55">{badge}</span>}
+                        <button
+                            type="button"
+                            onClick={() => setEditing(true)}
+                            aria-label={`Rename ${activity.name}`}
+                            className="flex items-center justify-center w-7 h-7 rounded-full text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+                        >
+                            <IconPencil className="w-3.5 h-3.5" />
+                        </button>
+                        <span className="ml-auto flex items-center gap-1" aria-hidden="true">
+                            {DIMENSIONS.filter((d) => activity[d.key]).map((d) => (
+                                <span key={d.key} title={d.short}>
+                                    {d.emoji}
+                                </span>
+                            ))}
                         </span>
-                    ))}
-                </span>
+                    </>
+                )}
             </div>
 
             {activity.note && <p className="text-sm italic text-white/55">“{activity.note}”</p>}
