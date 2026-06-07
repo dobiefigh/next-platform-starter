@@ -6,6 +6,8 @@ import { useFollow } from 'lib/use-follow';
 import { goalProgressToday, goalStreak, habitsForGoal, isDone, streakFor } from 'lib/follow';
 import { IconCheck, IconFlame, IconPencil, IconPlus, IconX } from 'components/icons';
 import { HistoryHeatmap } from 'components/follow/history-heatmap';
+import { DailyReflection } from 'components/follow/daily-reflection';
+import { RecentReflections } from 'components/follow/recent-reflections';
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -22,15 +24,28 @@ export default function FollowPage() {
 
     if (goals.length === 0) {
         return (
-            <div className="flex flex-col items-center gap-5 py-16 text-center">
-                <EmptyGlyph />
-                <h1>Nothing to follow yet</h1>
-                <p className="max-w-sm text-white/65">
-                    Turn activities from your map into goals and daily habits. Small, consistent actions are how ikigai becomes real.
-                </p>
-                <Link href="/follow/new" className="btn btn-lg">
-                    Create your first goal
-                </Link>
+            <div className="flex flex-col gap-8 py-4">
+                <header>
+                    <h1>Today</h1>
+                    <p className="text-white/60">{todayLabel()}</p>
+                </header>
+
+                <DailyReflection />
+
+                <div className="surface flex flex-col items-center gap-4 text-center py-8">
+                    <EmptyGlyph />
+                    <div>
+                        <h2 className="text-xl">Set your first goal</h2>
+                        <p className="max-w-sm mt-1 text-white/65">
+                            Turn activities from your map into goals and daily habits. Small, consistent actions are how ikigai becomes real.
+                        </p>
+                    </div>
+                    <Link href="/follow/new" className="btn btn-lg">
+                        Create a goal
+                    </Link>
+                </div>
+
+                <RecentReflections />
             </div>
         );
     }
@@ -51,6 +66,8 @@ export default function FollowPage() {
                     <IconPlus className="w-4 h-4" /> New goal
                 </Link>
             </header>
+
+            <DailyReflection />
 
             {totalToday > 0 && (
                 <section className="surface flex flex-col gap-4">
@@ -112,6 +129,8 @@ export default function FollowPage() {
                     <p className="text-xs text-white/55">Daily habit check-ins over the last 12 weeks.</p>
                 </section>
             )}
+
+            <RecentReflections />
         </div>
     );
 }

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useIkigai } from 'lib/use-ikigai';
 import { DIMENSIONS, EXAMPLES, summarize } from 'lib/ikigai';
+import { IkigaiStatement } from 'components/ikigai/statement-card';
 import { IconCheck, IconPlus, IconX } from 'components/icons';
 
 export default function DiscoverPage() {
@@ -203,19 +204,13 @@ export default function DiscoverPage() {
     const ikigaiCount = groups.ikigai.length;
 
     return (
-        <div className="flex flex-col items-center gap-6 py-10 text-center">
-            <div className="text-5xl">{ikigaiCount > 0 ? '🎯' : '🌱'}</div>
-            <h1>
-                {ikigaiCount > 0
-                    ? `You found ${ikigaiCount} ikigai ${ikigaiCount === 1 ? 'candidate' : 'candidates'}!`
-                    : 'Your map is ready'}
-            </h1>
-            <p className="max-w-md text-white/70">
-                {ikigaiCount > 0
-                    ? 'These activities sit where all four circles meet. Your map shows the full picture.'
-                    : 'Nothing hits all four circles yet — that is completely normal. Your map shows what is close and what is missing.'}
-            </p>
-            <div className="flex flex-col w-full max-w-xs gap-3">
+        <div className="flex flex-col gap-6 py-8">
+            <div className="flex flex-col items-center gap-2 text-center">
+                <div className="text-5xl">{ikigaiCount > 0 ? '🎯' : '🌱'}</div>
+                <h1>{ikigaiCount > 0 ? 'You found your ikigai!' : 'Your map is ready'}</h1>
+            </div>
+            <IkigaiStatement activities={activities} />
+            <div className="flex flex-col w-full max-w-xs gap-3 mx-auto">
                 <Link href="/map" className="btn btn-lg">
                     See your full map
                 </Link>
