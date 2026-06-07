@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useIkigai } from 'lib/use-ikigai';
 import { IkigaiVenn } from 'components/ikigai/venn';
 import { IkigaiMark } from 'components/ikigai/mark';
+import { IkigaiStatement } from 'components/ikigai/statement-card';
+import { BalancePanel } from 'components/ikigai/balance-panel';
 import { IconArrowRight, IconCheck, IconPencil } from 'components/icons';
 import { buildExampleActivities, DIMENSIONS, IKIGAI_HEX, missingDims, summarize } from 'lib/ikigai';
 
@@ -50,9 +52,13 @@ export default function MapPage() {
                 </p>
             </header>
 
+            <IkigaiStatement activities={activities} />
+
             <div className="surface">
                 <IkigaiVenn activities={activities} />
             </div>
+
+            <BalancePanel activities={activities} />
 
             {groups.ikigai.length > 0 && (
                 <Section title="Your ikigai" accent={IKIGAI_HEX} subtitle="Where all four circles meet — protect and grow these.">
