@@ -167,7 +167,7 @@ function ActivityRow({ activity, badge, highlight, showGaps }) {
                             type="button"
                             onClick={() => setEditing(true)}
                             aria-label={`Rename ${activity.name}`}
-                            className="flex items-center justify-center w-7 h-7 rounded-full text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+                            className="flex items-center justify-center w-9 h-9 rounded-full text-white/40 hover:text-white hover:bg-white/10 transition-colors"
                         >
                             <IconPencil className="w-3.5 h-3.5" />
                         </button>
