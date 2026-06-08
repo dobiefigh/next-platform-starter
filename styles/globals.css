@@ -85,7 +85,8 @@
     }
 
     .input {
-        @apply px-4 py-3 text-sm rounded-xl border border-neutral-300 bg-white text-neutral-900 focus:border-primary focus:outline-3 focus:outline-primary/30;
+        /* font-size: 1rem prevents iOS Safari from auto-zooming on focus */
+        @apply px-4 py-2.5 text-base rounded-xl border border-neutral-300 bg-white text-neutral-900 focus:border-primary focus:outline-3 focus:outline-primary/30;
     }
 
     .skeleton {

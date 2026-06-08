@@ -26,8 +26,11 @@ export default function RootLayout({ children }) {
     return (
         <html lang="en">
             <body className="antialiased text-white bg-[#0b1020]">
-                <div className="flex flex-col min-h-screen px-5 bg-noise sm:px-8">
-                    <div className="flex flex-col w-full max-w-2xl mx-auto grow">
+                <div
+                    className="flex flex-col min-h-dvh bg-noise"
+                    style={{ paddingTop: 'env(safe-area-inset-top)', paddingLeft: 'env(safe-area-inset-left)', paddingRight: 'env(safe-area-inset-right)' }}
+                >
+                    <div className="flex flex-col w-full max-w-2xl mx-auto grow px-5 sm:px-8">
                         <AppHeader />
                         <main className="grow pb-28 sm:pb-16">{children}</main>
                     </div>

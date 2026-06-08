@@ -15,7 +15,7 @@ export function AppHeader() {
     const pathname = usePathname();
 
     return (
-        <nav className="flex items-center gap-3 py-5">
+        <nav className="flex items-center gap-3 py-3 sm:py-5">
             <Link href="/" className="flex items-center gap-2 text-lg font-bold no-underline">
                 <IkigaiMark className="w-7 h-7" />
                 <span>Ikigai</span>
